@@ -1,15 +1,27 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { cn } from "@/lib/utils";
+import axios from "axios";
 // import your auth context or hook here
 // import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar({ className }: { className?: string }) {
   const [scrolledEnough, setScrolledEnough] = useState(false);
   const [scrollDirection, setScrollDirection] = useState("up");
-  // Replace this with your actual authentication logic
-  // const { isAuthenticated } = useAuth();
-  const isAuthenticated = false; // <-- Replace with real value
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await axios.get("http://localhost:3000/api/data/me", {
+          withCredentials: true,
+        });
+        setIsAuthenticated(true);
+      } catch {
+        setIsAuthenticated(false);
+      }
+    };
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     let lastScrollY = window.pageYOffset;
@@ -39,11 +51,13 @@ export default function Navbar({ className }: { className?: string }) {
             ? "opacity-0 pointer-events-none"
             : "opacity-100"
         }`,
-        className
+        className,
       )}
     >
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link to={"/"} className="text-xl font-bold">TypeRight</Link>
+        <Link to={"/"} className="text-xl font-bold">
+          TypeRight
+        </Link>
         <div className="space-x-6">
           <Link className="hover:underline" to="/about">
             About Us
