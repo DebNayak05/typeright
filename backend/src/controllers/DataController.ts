@@ -5,8 +5,12 @@ export const postmistakes = async (
     res: express.Response
 ) => {
     try {
-        const { mistakes, userId, wpm, accuracy } = req.body;
+        const { mistakes, wpm, accuracy } = req.body;
+        const userId = req.userId;
         if (!userId || !wpm || !accuracy) {
+            console.log(userId);
+            console.log(accuracy);
+            console.log(wpm);
             return res.status(400).json({
                 message: "please login first",
             });
@@ -31,7 +35,7 @@ export const fetchprofile = async (
     res: express.Response
 ) => {
     try {
-        const { userId } = req.body;
+        const userId = req.userId;
 
         if (!userId || typeof userId !== "string") {
             return res

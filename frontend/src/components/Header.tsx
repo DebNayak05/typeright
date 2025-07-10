@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { cn } from "@/lib/utils";
+// import your auth context or hook here
+// import { useAuth } from "@/context/AuthContext";
+
 export default function Navbar({ className }: { className?: string }) {
   const [scrolledEnough, setScrolledEnough] = useState(false);
   const [scrollDirection, setScrollDirection] = useState("up");
+  // Replace this with your actual authentication logic
+  // const { isAuthenticated } = useAuth();
+  const isAuthenticated = false; // <-- Replace with real value
+
   useEffect(() => {
     let lastScrollY = window.pageYOffset;
     const updateScrollDirection = () => {
@@ -41,9 +48,20 @@ export default function Navbar({ className }: { className?: string }) {
           <Link className="hover:underline" to="/about">
             About Us
           </Link>
-          <Link to="/profile" className="hover:underline">
-            Profile
-          </Link>
+          {isAuthenticated ? (
+            <Link to="/profile" className="hover:underline">
+              Profile
+            </Link>
+          ) : (
+            <>
+              <Link to="/login" className="hover:underline">
+                Login
+              </Link>
+              <Link to="/signup" className="hover:underline">
+                Signup
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>
