@@ -1,4 +1,4 @@
-import { createUser, getUserByEmail, IUser } from "../db/UserModel";
+import { createUser, getUserByEmail } from "../db/UserModel";
 import express from "express";
 import { createHashedPassword } from "../helpers/index";
 import bcrypt from "bcryptjs";
@@ -39,7 +39,9 @@ export const login = async (req: express.Request, res: express.Response) => {
                 message: "invalid input",
             });
         }
-        const existingUser = await getUserByEmail(email).select("authentication.password");
+        const existingUser = await getUserByEmail(email).select(
+            "authentication.password"
+        );
         if (!existingUser) {
             return res.status(400).json({
                 message: "user doesn't exist",
@@ -63,12 +65,15 @@ export const login = async (req: express.Request, res: express.Response) => {
         await existingUser.save();
         res.cookie("sessionToken", sessionToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            // secure: process.env.NODE_ENV === "production",
+            // sameSite: "strict",
             maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
         });
         return res.status(200).json({ message: "login successful" });
     } catch (error) {
         console.log(error);
+        return res.status(400).json({
+            message: "Something went wrong",
+        });
     }
 };

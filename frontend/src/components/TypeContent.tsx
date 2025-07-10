@@ -171,7 +171,7 @@ export default function Content() {
           </div>
         </div>
       )}
-      {true && (
+      {!timerRunning && (
         <div className="text-center">
           <button
             className="backdrop-blur-md p-2 m-1 rounded-lg w-fit h-full bg-slate-300/30 hover:scale-105 transition-all duration-200 cursor-pointer"
