@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function Signup() {
   const [name, setName] = useState("");
@@ -26,7 +27,8 @@ export default function Signup() {
     e.preventDefault();
     try {
       await axios.post(
-        "http://localhost:3000/api/auth/register",
+        // "http://localhost:3000/api/auth/register",
+        `${backendUrl}/api/auth/register`,
         { name, email, password },
         { withCredentials: true },
       );
@@ -94,58 +96,6 @@ export default function Signup() {
           <Button type="submit" className="w-full" onClick={handleSubmit}>
             Sign Up
           </Button>
-        </CardFooter>
-      </Card>
-    </div>
-  );
-
-  return (
-    <div className="flex justify-center items-center h-fit w-full">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Signup</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              placeholder="Name"
-              className="w-full p-2 border rounded"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              className="w-full p-2 border rounded"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              className="w-full p-2 border rounded"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button
-              type="submit"
-              className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
-            >
-              Signup
-            </button>
-          </form>
-        </CardContent>
-        <CardFooter>
-          <span className="text-sm text-gray-500 mx-auto">
-            Already have an account?{" "}
-            <a href="/login" className="text-blue-600 hover:underline">
-              Login
-            </a>
-          </span>
         </CardFooter>
       </Card>
     </div>

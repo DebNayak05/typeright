@@ -27,6 +27,7 @@
     "@radix-ui/react-label": "^2.1.7",
     "bcryptjs": "^3.0.2",
     "dotenv": "^17.2.0",
+    "groq-sdk": "^0.26.0",
     "i": "^0.3.7",
     "jsonwebtoken": "^9.0.2",
     "npm": "^11.4.2"

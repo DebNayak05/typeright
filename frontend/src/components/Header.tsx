@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { cn } from "@/lib/utils";
 import axios from "axios";
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 // import your auth context or hook here
 // import { useAuth } from "@/context/AuthContext";
 
@@ -12,9 +13,11 @@ export default function Navbar({ className }: { className?: string }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await axios.get("http://localhost:3000/api/data/me", {
-          withCredentials: true,
-        });
+        await axios.get(
+          // "http://localhost:3000/api/data/me",
+          `${backendUrl}/api/data/me`,
+          { withCredentials: true },
+        );
         setIsAuthenticated(true);
       } catch {
         setIsAuthenticated(false);

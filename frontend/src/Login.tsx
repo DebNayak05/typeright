@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -24,7 +25,7 @@ export default function Login() {
   const handleSubmit = async () => {
     try {
       await axios.post(
-        "http://localhost:3000/api/auth/login",
+        `${backendUrl}/api/auth/login`,
         { email, password },
         { withCredentials: true },
       );

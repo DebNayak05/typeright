@@ -3,6 +3,7 @@ import Cursor from "./Cursor";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { IoReload } from "react-icons/io5";
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 interface Mistake {
   index: number;
@@ -33,6 +34,36 @@ const Letter = memo(
   },
 );
 
+const fetchText = async () => {
+  let id = "";
+  try {
+    const user = await axios.get(
+      // "http://localhost:3000/api/data/",
+      `${backendUrl}/api/data/`,
+      {
+        withCredentials: true,
+      },
+    );
+    if (user.data && user.data.id) {
+      id = user.data.id;
+    }
+  } catch (error) {
+    console.error("Error fetching user ID:", error);
+  }
+  console.log("User ID:", id);
+  try {
+    const text = await axios.post(
+      // "http://localhost:3000/api/data/generateText",
+      `${backendUrl}/api/data/generateText`,
+      { id },
+      { withCredentials: true },
+    );
+    return text.data.text;
+  } catch (error) {
+    console.error("Error fetching text:", error);
+    return "Practice writing skills with paragraph typing exercises. This practice lesson consists of short paragraphs about interesting subjects. Find fun keyboard typing practice—and learn something new! Our paragraph practice is great typing practice for writing essays, reports, emails, and more for school and work.";
+  }
+};
 export default function Content() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [cursorIdx, setCursorIdx] = useState(0);
@@ -44,7 +75,15 @@ export default function Content() {
   const [accuracy, setAccuracy] = useState<number | null>(null);
   const [correctTyped, setCorrectTyped] = useState<number>(0);
   const [totalTyped, setTotalTyped] = useState<number>(0);
-
+  const [targetText, setTargetText] = useState<string>("Loading...");
+  useEffect(() => {
+    const setText = async () => {
+      const text = await fetchText();
+      console.log("Fetched text:", text);
+      setTargetText(text);
+    };
+    setText();
+  }, []);
   useEffect(() => {
     if (!timerRunning) {
       return;
@@ -73,9 +112,6 @@ export default function Content() {
     }
   }, [timeLeft, totalTyped, correctTyped]);
 
-  const [targetText, setTargetText] = useState<string>(
-    "Practice writing skills with paragraph typing exercises. This practice lesson consists of short paragraphs about interesting subjects. Find fun keyboard typing practice—and learn something new! Our paragraph practice is great typing practice for writing essays, reports, emails, and more for school and work. ",
-  );
   const [mistakes, setMistakes] = useState<Mistake[]>([]);
 
   const focusInput = () => {
@@ -118,7 +154,8 @@ export default function Content() {
   const reloadContent = async () => {
     try {
       await axios.post(
-        "http://localhost:3000/api/data/postdata/",
+        // "http://localhost:3000/api/data/postdata/",
+        `${backendUrl}/api/data/postdata/`,
         { mistakes, wpm, accuracy },
         { withCredentials: true },
       );
@@ -137,7 +174,11 @@ export default function Content() {
     setCursorIdx(0);
     setFocused(true);
     setMistakes([]);
-    //todo - change targettext
+    const setText = async () => {
+      const text = await fetchText();
+      setTargetText(text);
+    };
+    setText();
   };
   const handleFocus = () => setFocused(true);
   const handleBlur = () => setFocused(false);

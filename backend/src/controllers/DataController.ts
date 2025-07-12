@@ -1,5 +1,8 @@
 import { createTest } from "../db/TestModel";
 import express from "express";
+import { getUserBySessionToken } from "../db/UserModel";
+import { getTestsByUserId } from "../db/TestModel";
+import { generateTypingParagraph } from "../groq/getText";
 export const postmistakes = async (
   req: express.Request,
   res: express.Response,
@@ -28,7 +31,6 @@ export const postmistakes = async (
     res.status(400).json({ message: "Something went wrong" });
   }
 };
-import { getTestsByUserId } from "../db/TestModel";
 
 export const fetchprofile = async (
   req: express.Request,
@@ -55,4 +57,46 @@ export const userExists = async (
   res: express.Response,
 ) => {
   return res.status(200).json({ message: "User Exists" });
+};
+
+export const getUserData = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  const sessionToken = req.cookies["sessionToken"];
+  if (!sessionToken) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  const existingUser = await getUserBySessionToken(sessionToken);
+  if (!existingUser) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  const email = existingUser.email,
+    name = existingUser.name,
+    id = existingUser._id;
+  return res.status(200).json({ message: "User exists", email, name, id });
+};
+
+export const generateText = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  const { id } = req.body;
+  let mistakeMap = new Map<string, number>();
+  try {
+    const tests = id ? await getTestsByUserId(id).limit(5) : [];
+    tests.forEach((test) => {
+      test.mistake.forEach((mistake) => {
+        const char = `${mistake.correct}`;
+        mistakeMap.set(char, (mistakeMap.get(char) || 0) + 1);
+      });
+    });
+    const text = await generateTypingParagraph(mistakeMap);
+    return res
+      .status(200)
+      .json({ message: "Text generated successfully", text: text });
+  } catch (error) {
+    console.error("Error generating text:", error);
+    return res.status(500).json({ message: "Failed to generate text" });
+  }
 };
