@@ -57,14 +57,12 @@ export default function Profile() {
     const sendRequest = async () => {
       try {
         const res = await axios.get(
-          // "http://localhost:3000/api/data/getdata/",
           `${backendUrl}/api/data/getdata/`,
           { withCredentials: true },
         );
         setTests(res.data.tests || []);
         setError(null);
         const userDetails = await axios.get(
-          // "http://localhost:3000/api/data/",
           `${backendUrl}/api/data/`,
           { withCredentials: true },
         );

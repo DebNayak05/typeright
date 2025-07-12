@@ -20,7 +20,7 @@ interface LetterProps {
 }
 
 const Letter = memo(
-  ({ char, typedChar, showCursor, isTyped, isCorrect }: LetterProps) => {
+  ({ char, showCursor, isTyped, isCorrect }: LetterProps) => {
     let className = "text-slate-500";
     if (isTyped) {
       className = isCorrect ? "text-yellow-400" : "text-red-500";
@@ -38,7 +38,6 @@ const fetchText = async () => {
   let id = "";
   try {
     const user = await axios.get(
-      // "http://localhost:3000/api/data/",
       `${backendUrl}/api/data/`,
       {
         withCredentials: true,
@@ -53,7 +52,6 @@ const fetchText = async () => {
   console.log("User ID:", id);
   try {
     const text = await axios.post(
-      // "http://localhost:3000/api/data/generateText",
       `${backendUrl}/api/data/generateText`,
       { id },
       { withCredentials: true },
@@ -154,7 +152,6 @@ export default function Content() {
   const reloadContent = async () => {
     try {
       await axios.post(
-        // "http://localhost:3000/api/data/postdata/",
         `${backendUrl}/api/data/postdata/`,
         { mistakes, wpm, accuracy },
         { withCredentials: true },

@@ -14,7 +14,6 @@ export default function Navbar({ className }: { className?: string }) {
     const checkAuth = async () => {
       try {
         await axios.get(
-          // "http://localhost:3000/api/data/me",
           `${backendUrl}/api/data/me`,
           { withCredentials: true },
         );

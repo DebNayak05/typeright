@@ -27,7 +27,6 @@ export default function Signup() {
     e.preventDefault();
     try {
       await axios.post(
-        // "http://localhost:3000/api/auth/register",
         `${backendUrl}/api/auth/register`,
         { name, email, password },
         { withCredentials: true },
@@ -44,9 +43,9 @@ export default function Signup() {
     <div className="flex justify-center items-center h-fit w-full">
       <Card className="w-full h-fit max-w-sm dark">
         <CardHeader>
-          <CardTitle>Sign Up = to your account</CardTitle>
+          <CardTitle>Sign Up to your account</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your email below to sign up to TypeRight
           </CardDescription>
           <CardAction>
             <Button variant="link">
@@ -64,7 +63,7 @@ export default function Signup() {
                   type="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
+                  placeholder="Bhavya Gupta"
                   required
                 />
               </div>
