@@ -65,6 +65,8 @@ export const login = async (req: express.Request, res: express.Response) => {
     await existingUser.save();
     res.cookie("sessionToken", sessionToken, {
       httpOnly: true,
+      secure: true,
+      sameSite: "none",
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     });
     return res.status(200).json({ message: "login successful" });
