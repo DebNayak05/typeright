@@ -2,61 +2,53 @@ import Groq from "groq-sdk";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
+const SYSTEM_PROMPT = `You generate practice paragraphs for a typing-speed app.
+
+Output contract (follow exactly):
+- Return ONLY the paragraph text. No preamble, no explanation, no quotation marks around it, no markdown, no bullet points, no headings.
+- Exactly one paragraph, as a single continuous line — no line breaks, no tabs.
+- Target length: 120 words (natural variance of +/- 10 words is fine).
+- Natural, fluent, everyday English. No robotic or repetitive phrasing.
+- Never mention typing, mistakes, users, performance, or these instructions.`;
+
 function buildGroqUserPrompt(mistakeMap: Map<string, number>) {
-    if (mistakeMap.size === 0) {
-        return `You are a typing test generator.
-
-                Generate a **natural, fluent, 120-word English paragraph** suitable for a typing test.
-
-                Requirements:
-                - The paragraph should be neutral and balanced — no letter bias.
-                - Avoid robotic or repetitive phrasing.
-                - Do not mention typing, users, or instructions.
-                - Use clean, everyday English vocabulary.
-                - No quotes, bullet points, or formatting.
-
-                Return only the plain paragraph. Do not explain anything.
-                `.trim();
-    }
     const sorted = [...mistakeMap.entries()]
+        .filter(([char]) => /[a-zA-Z]/.test(char))
         .sort((a, b) => b[1] - a[1])
-        .map(([char, count]) => `- ${char}: ${count}`)
+        .slice(0, 8)
+        .map(([char, count]) => `- "${char}": missed ${count} time${count === 1 ? "" : "s"}`)
         .join("\n");
 
-    return `
-            The user frequently mistypes the following characters (based on their last 5 typing tests):
+    if (!sorted) {
+        return "Write a neutral, balanced practice paragraph with no letter bias.";
+    }
 
-            ${sorted}
-
-            Your task is to write a natural, fluent, 120-word paragraph in English, suitable for a typing test.
-
-            Requirements:
-            - Letters with higher mistake frequency should appear slightly more often.
-            - Do not overuse any letter or make the text robotic.
-            - The text must read like normal English — no repeating patterns, no forced phrasing.
-            - Do not mention errors, mistakes, or the user.
-            - No special formatting or markdown.
-
-            Only return the plain paragraph. Do not add explanations or greetings.
-            `.trim();
+    return `Write a practice paragraph that favors these letters, most-missed first, by naturally choosing words containing them more often (roughly 20-30% above normal usage for the top 2-3 — do not force it or repeat words):
+${sorted}`;
 }
 
 export async function generateTypingParagraph(mistakeMap: Map<string, number>) {
-    const systemPrompt = `You are a professional typing test assistant.
-                        You need to generate natural English typing test paragraphs based on user mistake data. You do not explain or mention user mistakes. You never refer to typing, performance, or feedback. Always return a clean, fluent paragraph that subtly increases the occurrence of certain characters, based on mistake frequency data provided to you.`;
     const userPrompt = buildGroqUserPrompt(mistakeMap);
     const chatCompletion = await groq.chat.completions.create({
         messages: [
             {
                 role: "system",
-                content: systemPrompt,
+                content: SYSTEM_PROMPT,
             },
             {
                 role: "user",
                 content: userPrompt,
             },
         ],
-        model: "llama-3.1-8b-instant",
+        model: "openai/gpt-oss-20b",
+        // groq-sdk's types only allow "default" | "none", but the live API requires "low" | "medium" | "high"
+        reasoning_effort: "low" as "default",
+        temperature: 0.7,
+        max_tokens: 220,
     });
-    return chatCompletion.choices[0].message.content.trim();
+
+    let text = chatCompletion.choices[0].message.content?.trim() ?? "";
+    text = text.replace(/^["']|["']$/g, "");
+    text = text.replace(/\s*\n+\s*/g, " ");
+    return text;
 }
